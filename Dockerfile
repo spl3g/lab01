@@ -4,6 +4,7 @@ RUN apk add --no-cache gcc musl-dev make
 WORKDIR /cbuild
 
 COPY ./lib ./lib
+COPY ./internal ./internal
 COPY ./app.c ./
 COPY ./Makefile ./
 
