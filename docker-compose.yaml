@@ -1,0 +1,22 @@
+services:
+  contacts-1:
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+  contacts-2:
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+  contacts-3:
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+  balancer:
+    image: nginx:alpine3.21
+    ports:
+      - 8080:80
+    volumes:
+      - ./nginx:/etc/nginx/templates
