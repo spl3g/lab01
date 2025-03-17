@@ -103,8 +103,8 @@ void resp_set_code(struct response* resp, response_code code) {
 }
 
 void resp_set_json(arena *arena, struct response* resp, const_string json) {
-  const_string len_str = arena_cs_init(arena, snprintf(NULL, 0, "%d", json.len));
-  sprintf(len_str.data, "%d", json.len);
+  const_string len_str = arena_cs_init(arena, snprintf(NULL, 0, "%d", json.len+2));
+  sprintf(len_str.data, "%d", json.len+2);
   arena_da_append(arena, &resp->headers, ((KV){CS("Content-Length"), len_str}));
   arena_da_append(arena, &resp->headers, ((KV){CS("Content-Type"), CS("application/json")}));
   resp->body = json;
@@ -333,6 +333,35 @@ int parse_request(arena *arena, size_t inc_fd, struct request *req) {
   return 0;
 }
 
+bool compare_paths(const_string handler_path, const_string req_path, arena* arena, context *ctx) {
+  const_string path;
+  bool entered = false;
+
+  while (cs_try_chop_delim(&handler_path, ':', &path)) {
+	entered = true;
+	
+	const_string req_byte = {req_path.data, path.len};
+	if (!cs_eq(path, req_byte)) {
+	  return false;
+	}
+	
+	req_path.data += path.len;
+	req_path.len -= path.len;
+
+	const_string name = cs_chop_delim(&handler_path, '/');
+	const_string tmp = cs_chop_delim(&req_path, '/');
+	const_string *value = arena_alloc(arena, sizeof(const_string));
+	*value = tmp;
+	set_context_value(arena, ctx, (context_value){name, (void *)value});
+  }
+  
+  if (!entered && !cs_eq(handler_path, req_path)) {
+	return false;
+  }
+  
+  return true;
+}
+
 void process_request(struct server *serv, size_t inc_fd) {
   arena req_arena = {0};
 
@@ -353,7 +382,7 @@ void process_request(struct server *serv, size_t inc_fd) {
 	for (size_t i = 0; i < serv->handlers.len; i++) {
 	  struct handler handler = serv->handlers.data[i];
 	  if ((cs_eq(handler.method, req.method) || (cs_eq(handler.method, CS("GET")) && cs_eq(req.method, CS("HEAD"))) )
-		  && cs_eq(handler.path, req.path)) {
+		  && compare_paths(handler.path, req.path, &req_arena, &req_context)) {
 		handler.func(&req_context, req, &resp);
 		break;
 	  }

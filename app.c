@@ -37,16 +37,11 @@ void contact_get(context *ctx, struct request req, struct response *resp) {
 }
 
 void contact_post(context *ctx, struct request req, struct response *resp) {
-  printf("POST contact");
-  const_string_da output_da = {0};
+  printf("POST contact\n");
   arena *arena = get_context_value(ctx, CS("arena"));
 
-  struct json_builder builder = {
-	.arena = arena,
-	.da = &output_da,
-  };
-
-  struct json_out out = {json_sb_printer, {.data = (void *)&builder}};
+  const_string_da output_da = {0};
+  struct json_out out = JSON_OUT_BUILDER(output_da);
 
   contact *contact = get_context_value(ctx, CS("contact"));
   json_printf(&out, "%M", contact_to_json, *contact);
@@ -58,16 +53,11 @@ void contact_post(context *ctx, struct request req, struct response *resp) {
 }
 
 void contact_put(context *ctx, struct request req, struct response *resp) {
-  printf("PUT contact");
-  const_string_da output_da = {0};
+  printf("PUT contact\n");
   arena *arena = get_context_value(ctx, CS("arena"));
 
-  struct json_builder builder = {
-	.arena = arena,
-	.da = &output_da,
-  };
-
-  struct json_out out = {json_sb_printer, {.data = (void *)&builder}};
+  const_string_da output_da = {0};
+  struct json_out out = JSON_OUT_BUILDER(output_da);
 
   contact *contact = get_context_value(ctx, CS("contact"));
   json_printf(&out, "%M", contact_to_json, *contact);
@@ -79,20 +69,30 @@ void contact_put(context *ctx, struct request req, struct response *resp) {
 }
 
 void contact_delete(context *ctx, struct request req, struct response *resp) {
-  printf("DELETE contact");
+  printf("DELETE contact\n");
   resp->code = NO_CONTENT;
 }
 
-void group_get(context *ctx, struct request req, struct response *resp) {
-  const_string_da output_da = {0};
+void groups_get(context *ctx, struct request req, struct response *resp) {
   arena *arena = get_context_value(ctx, CS("arena"));
 
-  struct json_builder builder = {
-	.arena = arena,
-	.da = &output_da,
-  };
+  const_string_da output_da = {0};
+  struct json_out out = JSON_OUT_BUILDER(output_da);
 
-  struct json_out out = {json_sb_printer, {.data = (void *)&builder}};
+  contact *group = get_context_value(ctx, CS("group"));
+  int len = json_printf(&out, "%M", group_to_json, *group);
+  arena_da_append(arena, &output_da, CS("\r\n"));
+  const_string output = arena_cs_concat(arena, output_da, CS(""));
+
+  resp_set_code(resp, OK);
+  resp_set_json(arena, resp, output);
+}
+
+void group_get(context *ctx, struct request req, struct response *resp) {
+  arena *arena = get_context_value(ctx, CS("arena"));
+
+  const_string_da output_da = {0};
+  struct json_out out = JSON_OUT_BUILDER(output_da);
 
   contact *group = get_context_value(ctx, CS("group"));
   int len = json_printf(&out, "%M", group_to_json, *group);
@@ -104,11 +104,33 @@ void group_get(context *ctx, struct request req, struct response *resp) {
 }
 
 void group_post(context *ctx, struct request req, struct response *resp) {
-  resp->code = CREATED;
+  arena *arena = get_context_value(ctx, CS("arena"));
+
+  const_string_da output_da = {0};
+  struct json_out out = JSON_OUT_BUILDER(output_da);
+
+  contact *group = get_context_value(ctx, CS("group"));
+  int len = json_printf(&out, "%M", group_to_json, *group);
+  arena_da_append(arena, &output_da, CS("\r\n"));
+  const_string output = arena_cs_concat(arena, output_da, CS(""));
+
+  resp_set_code(resp, CREATED);
+  resp_set_json(arena, resp, output);
 }
 
 void group_put(context *ctx, struct request req, struct response *resp) {
-  resp->code = OK;
+  arena *arena = get_context_value(ctx, CS("arena"));
+
+  const_string_da output_da = {0};
+  struct json_out out = JSON_OUT_BUILDER(output_da);
+
+  contact *group = get_context_value(ctx, CS("group"));
+  int len = json_printf(&out, "%M", group_to_json, *group);
+  arena_da_append(arena, &output_da, CS("\r\n"));
+  const_string output = arena_cs_concat(arena, output_da, CS(""));
+
+  resp_set_code(resp, OK);
+  resp_set_json(arena, resp, output);
 }
 
 void group_delete(context *ctx, struct request req, struct response *resp) {
@@ -162,15 +184,17 @@ int main() {
   /* char *str = json_asprintf("%M", group_to_json, test); */
   /* printf("%s", str); */
 
-  handle_path(&serv, CS("GET"), CS("/api/v1/contact"), contact_get);
+  handle_path(&serv, CS("GET"), CS("/api/v1/contact"), contacts_get);
+  handle_path(&serv, CS("GET"), CS("/api/v1/contact/:id"), contact_get);
   handle_path(&serv, CS("POST"), CS("/api/v1/contact"), contact_post);
-  handle_path(&serv, CS("PUT"), CS("/api/v1/contact"), contact_put);
-  handle_path(&serv, CS("DELETE"), CS("/api/v1/contact"), contact_delete);
+  handle_path(&serv, CS("PUT"), CS("/api/v1/contact/:id"), contact_put);
+  handle_path(&serv, CS("DELETE"), CS("/api/v1/contact/:id"), contact_delete);
 
-  handle_path(&serv, CS("GET"), CS("/api/v1/group"), group_get);
+  handle_path(&serv, CS("GET"), CS("/api/v1/group"), groups_get);
+  handle_path(&serv, CS("GET"), CS("/api/v1/group/:id"), group_get);
   handle_path(&serv, CS("POST"), CS("/api/v1/group"), group_post);
-  handle_path(&serv, CS("PUT"), CS("/api/v1/group"), group_put);
-  handle_path(&serv, CS("DELETE"), CS("/api/v1/group"), group_delete);
+  handle_path(&serv, CS("PUT"), CS("/api/v1/group/:id"), group_put);
+  handle_path(&serv, CS("DELETE"), CS("/api/v1/group/:id"), group_delete);
   listen_and_serve(&serv);
 
   return 0;
