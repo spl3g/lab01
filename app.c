@@ -5,7 +5,7 @@
 #include "internal/serializers.h"
 
 void contacts_get(context *ctx, struct request req, struct response *resp) {
-  printf("GET contacts\n");
+  http_log(HTTP_INFO, "GET contacts\n");
   arena *arena = get_context_value(ctx, CS("arena"));
 
   string_builder output = {0};
@@ -20,7 +20,7 @@ void contacts_get(context *ctx, struct request req, struct response *resp) {
 
 void contact_get(context *ctx, struct request req, struct response *resp) {
   const_string *id = get_context_value(ctx, CS("id"));
-  printf("GET contact id=%.*s\n", id->len, id->data);
+  http_log(HTTP_INFO, "GET contact id=%.*s\n", id->len, id->data);
   
   arena *arena = get_context_value(ctx, CS("arena"));
 
@@ -35,7 +35,7 @@ void contact_get(context *ctx, struct request req, struct response *resp) {
 }
 
 void contact_post(context *ctx, struct request req, struct response *resp) {
-  printf("POST contact\n");
+  http_log(HTTP_INFO, "POST contact\n");
   arena *arena = get_context_value(ctx, CS("arena"));
 
   string_builder output = {0};
@@ -49,7 +49,7 @@ void contact_post(context *ctx, struct request req, struct response *resp) {
 }
 
 void contact_put(context *ctx, struct request req, struct response *resp) {
-  printf("PUT contact\n");
+  http_log(HTTP_INFO, "PUT contact\n");
   arena *arena = get_context_value(ctx, CS("arena"));
 
   string_builder output = {0};
@@ -63,7 +63,7 @@ void contact_put(context *ctx, struct request req, struct response *resp) {
 }
 
 void contact_delete(context *ctx, struct request req, struct response *resp) {
-  printf("DELETE contact\n");
+  http_log(HTTP_INFO, "DELETE contact\n");
   resp->code = NO_CONTENT;
 }
 
