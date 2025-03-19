@@ -60,6 +60,27 @@ void sigchld_handler() {
     errno = saved_errno;
 }
 
+void http_log(http_log_level log, char *fmt, ...) {
+  switch (log) {
+  case HTTP_INFO:
+	fprintf(stderr, "[INFO] ");
+	break;
+	
+  case HTTP_WARNING:
+	fprintf(stderr, "[WARNING] ");
+	break;
+
+  case HTTP_ERROR:
+	fprintf(stderr, "[ERROR] ");
+	break;
+  }
+
+  va_list args;
+  va_start(args, fmt);
+  vfprintf(stderr, fmt, args);
+  va_end(args);
+}
+
 
 void *get_in_addr(struct sockaddr *sa) {
 	if (sa->sa_family == AF_INET) {
@@ -103,16 +124,22 @@ void resp_set_code(struct response* resp, response_code code) {
 }
 
 void resp_set_json(arena *arena, struct response* resp, const_string json) {
-  const_string len_str = arena_cs_init(arena, snprintf(NULL, 0, "%d", json.len+2));
-  sprintf(len_str.data, "%d", json.len+2);
-  arena_da_append(arena, &resp->headers, ((KV){CS("Content-Length"), len_str}));
+  int num_str_len = snprintf(NULL, 0, "%d", json.len+2);
+  char* len_str = arena_alloc(arena, snprintf(NULL, 0, "%d", json.len+2));
+  sprintf(len_str, "%d", json.len+2);
+  const_string len_cs = {len_str, num_str_len};
+  
+  arena_da_append(arena, &resp->headers, ((KV){CS("Content-Length"), len_cs}));
   arena_da_append(arena, &resp->headers, ((KV){CS("Content-Type"), CS("application/json")}));
   resp->body = json;
 }
 void resp_set_body(arena *arena, struct response* resp, const_string body) {
-  const_string len_str = arena_cs_init(arena, snprintf(NULL, 0, "%d", body.len));
-  sprintf(len_str.data, "%d", body.len);
-  arena_da_append(arena, &resp->headers, ((KV){CS("Content-Length"), len_str}));
+  int num_str_len = snprintf(NULL, 0, "%d", body.len+2);
+  char* len_str = arena_alloc(arena, snprintf(NULL, 0, "%d", body.len+2));
+  sprintf(len_str, "%d", body.len+2);
+  const_string len_cs = {len_str, num_str_len};
+
+  arena_da_append(arena, &resp->headers, ((KV){CS("Content-Length"), len_cs}));
   arena_da_append(arena, &resp->headers, ((KV){CS("Content-Type"), CS("application/text")}));
   resp->body = body;
 }
@@ -134,7 +161,7 @@ int init_server(arena *arena, struct server *serv, char *addr, char *port) {
 
   int sockfd = socket(res->ai_family, res->ai_socktype, 0);
   if (sockfd < 0) {
-	perror("bind");
+	perror("socket");
 	return 1;
   }
 
@@ -393,7 +420,7 @@ void process_request(struct server *serv, size_t inc_fd) {
 	compose_response(&req_arena, &resp);
   }
 
-  char *resp_cstr = resp.string.data;
+  const char *resp_cstr = resp.string.data;
   int resp_len = resp.string.len;
 
   int sent = send(inc_fd, resp_cstr, resp_len, 0);
@@ -415,11 +442,10 @@ int listen_and_serve(struct server *serv) {
 	perror("listen");
 	return 1;
   }
-
+  
   char my_ipstr[INET6_ADDRSTRLEN];
   inet_ntop(serv->addr->sa_family, get_in_addr(serv->addr), my_ipstr, sizeof my_ipstr);
-  printf("Listening on %s:%d\n", my_ipstr, get_in_port(serv->addr));
-
+  http_log(HTTP_INFO, "Listening on %s:%d\n", my_ipstr, get_in_port(serv->addr));
 
   while (keepRunning) {
 	struct sockaddr inc_addr;
