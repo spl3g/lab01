@@ -99,8 +99,6 @@ int group_to_json(struct json_out *out, va_list *ap) {
 
 int json_sb_printer(struct json_out *out, const char *str, size_t len) {
   struct json_builder *builder = out->u.data;
-  const_string cs = arena_cs_init(builder->arena, len);
-  memcpy(cs.data, str, len);
-  arena_da_append(builder->arena, builder->da, cs);
+  arena_sb_append_buf(builder->arena, builder->da, str, len);
   return len;
 }

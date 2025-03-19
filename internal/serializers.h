@@ -8,7 +8,7 @@
 
 struct json_builder {
   arena* arena;
-  const_string_da *da;
+  string_builder *da;
 };
 
 int json_sb_printer(struct json_out *out, const char *str, size_t len);

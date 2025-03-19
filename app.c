@@ -8,15 +8,14 @@ void contacts_get(context *ctx, struct request req, struct response *resp) {
   printf("GET contacts\n");
   arena *arena = get_context_value(ctx, CS("arena"));
 
-  const_string_da output_da = {0};
-  struct json_out out = JSON_OUT_BUILDER(output_da);
-
+  string_builder output = {0};
+  struct json_out out = JSON_OUT_BUILDER(output);
+  
   contact *contact = get_context_value(ctx, CS("contact"));
   json_printf(&out, "%M", contact_to_json, *contact);
-  const_string output = arena_cs_concat(arena, output_da, CS(""));
 
   resp_set_code(resp, OK);
-  resp_set_json(arena, resp, output);
+  resp_set_json(arena, resp, arena_sb_to_cs(output));
 }
 
 void contact_get(context *ctx, struct request req, struct response *resp) {
@@ -25,47 +24,42 @@ void contact_get(context *ctx, struct request req, struct response *resp) {
   
   arena *arena = get_context_value(ctx, CS("arena"));
 
-  const_string_da output_da = {0};
-  struct json_out out = JSON_OUT_BUILDER(output_da);
+  string_builder output = {0};
+  struct json_out out = JSON_OUT_BUILDER(output);
 
   contact *contact = get_context_value(ctx, CS("contact"));
   json_printf(&out, "%M", contact_to_json, *contact);
-  const_string output = arena_cs_concat(arena, output_da, CS(""));
 
   resp_set_code(resp, OK);
-  resp_set_json(arena, resp, output);
+  resp_set_json(arena, resp, arena_sb_to_cs(output));
 }
 
 void contact_post(context *ctx, struct request req, struct response *resp) {
   printf("POST contact\n");
   arena *arena = get_context_value(ctx, CS("arena"));
 
-  const_string_da output_da = {0};
-  struct json_out out = JSON_OUT_BUILDER(output_da);
+  string_builder output = {0};
+  struct json_out out = JSON_OUT_BUILDER(output);
 
   contact *contact = get_context_value(ctx, CS("contact"));
   json_printf(&out, "%M", contact_to_json, *contact);
-  arena_da_append(arena, &output_da, CS("\r\n"));
-  const_string output = arena_cs_concat(arena, output_da, CS(""));
 
   resp_set_code(resp, CREATED);
-  resp_set_json(arena, resp, output);
+  resp_set_json(arena, resp, arena_sb_to_cs(output));
 }
 
 void contact_put(context *ctx, struct request req, struct response *resp) {
   printf("PUT contact\n");
   arena *arena = get_context_value(ctx, CS("arena"));
 
-  const_string_da output_da = {0};
-  struct json_out out = JSON_OUT_BUILDER(output_da);
+  string_builder output = {0};
+  struct json_out out = JSON_OUT_BUILDER(output);
 
   contact *contact = get_context_value(ctx, CS("contact"));
   json_printf(&out, "%M", contact_to_json, *contact);
-  arena_da_append(arena, &output_da, CS("\r\n"));
-  const_string output = arena_cs_concat(arena, output_da, CS(""));
 
   resp_set_code(resp, OK);
-  resp_set_json(arena, resp, output);
+  resp_set_json(arena, resp, arena_sb_to_cs(output));
 }
 
 void contact_delete(context *ctx, struct request req, struct response *resp) {
@@ -76,61 +70,53 @@ void contact_delete(context *ctx, struct request req, struct response *resp) {
 void groups_get(context *ctx, struct request req, struct response *resp) {
   arena *arena = get_context_value(ctx, CS("arena"));
 
-  const_string_da output_da = {0};
-  struct json_out out = JSON_OUT_BUILDER(output_da);
+  string_builder output = {0};
+  struct json_out out = JSON_OUT_BUILDER(output);
 
   contact *group = get_context_value(ctx, CS("group"));
-  int len = json_printf(&out, "%M", group_to_json, *group);
-  arena_da_append(arena, &output_da, CS("\r\n"));
-  const_string output = arena_cs_concat(arena, output_da, CS(""));
+  json_printf(&out, "%M", group_to_json, *group);
 
   resp_set_code(resp, OK);
-  resp_set_json(arena, resp, output);
+  resp_set_json(arena, resp, arena_sb_to_cs(output));
 }
 
 void group_get(context *ctx, struct request req, struct response *resp) {
   arena *arena = get_context_value(ctx, CS("arena"));
 
-  const_string_da output_da = {0};
-  struct json_out out = JSON_OUT_BUILDER(output_da);
+  string_builder output = {0};
+  struct json_out out = JSON_OUT_BUILDER(output);
 
   contact *group = get_context_value(ctx, CS("group"));
-  int len = json_printf(&out, "%M", group_to_json, *group);
-  arena_da_append(arena, &output_da, CS("\r\n"));
-  const_string output = arena_cs_concat(arena, output_da, CS(""));
+  json_printf(&out, "%M", group_to_json, *group);
 
   resp_set_code(resp, OK);
-  resp_set_json(arena, resp, output);
+  resp_set_json(arena, resp, arena_sb_to_cs(output));
 }
 
 void group_post(context *ctx, struct request req, struct response *resp) {
   arena *arena = get_context_value(ctx, CS("arena"));
 
-  const_string_da output_da = {0};
-  struct json_out out = JSON_OUT_BUILDER(output_da);
+  string_builder output = {0};
+  struct json_out out = JSON_OUT_BUILDER(output);
 
   contact *group = get_context_value(ctx, CS("group"));
-  int len = json_printf(&out, "%M", group_to_json, *group);
-  arena_da_append(arena, &output_da, CS("\r\n"));
-  const_string output = arena_cs_concat(arena, output_da, CS(""));
+  json_printf(&out, "%M", group_to_json, *group);
 
   resp_set_code(resp, CREATED);
-  resp_set_json(arena, resp, output);
+  resp_set_json(arena, resp, arena_sb_to_cs(output));
 }
 
 void group_put(context *ctx, struct request req, struct response *resp) {
   arena *arena = get_context_value(ctx, CS("arena"));
 
-  const_string_da output_da = {0};
-  struct json_out out = JSON_OUT_BUILDER(output_da);
+  string_builder output = {0};
+  struct json_out out = JSON_OUT_BUILDER(output);
 
   contact *group = get_context_value(ctx, CS("group"));
-  int len = json_printf(&out, "%M", group_to_json, *group);
-  arena_da_append(arena, &output_da, CS("\r\n"));
-  const_string output = arena_cs_concat(arena, output_da, CS(""));
+  json_printf(&out, "%M", group_to_json, *group);
 
   resp_set_code(resp, OK);
-  resp_set_json(arena, resp, output);
+  resp_set_json(arena, resp, arena_sb_to_cs(output));
 }
 
 void group_delete(context *ctx, struct request req, struct response *resp) {
@@ -181,8 +167,6 @@ int main() {
   set_context_value(&arena, &ctx, (context_value){CS("contact"), &ivan});
   set_context_value(&arena, &ctx, (context_value){CS("group"), &friends});
   serv.global_ctx = ctx;
-  /* char *str = json_asprintf("%M", group_to_json, test); */
-  /* printf("%s", str); */
 
   handle_path(&serv, CS("GET"), CS("/api/v1/contact"), contacts_get);
   handle_path(&serv, CS("GET"), CS("/api/v1/contact/:id"), contact_get);
