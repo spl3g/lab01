@@ -25,6 +25,5 @@ void cs_print(char *format, const_string str);
 
 #endif // STRINGS_H_
 
-
 #ifdef CONST_STRINGS_IMPLEMENTATION
 #endif // STRINGS_IMPLEMENTATION
