@@ -24,6 +24,6 @@ int phone_da_to_json(struct json_out *out, va_list *ap);
 int contact_to_json(struct json_out *out, va_list *ap);
 int group_to_json(struct json_out *out, va_list *ap);
 
-#define JSON_OUT_BUILDER(da) {json_sb_printer, {.data = &(struct json_builder){arena, &da}}}
+#define JSON_OUT_BUILDER(arena, da) {json_sb_printer, {.data = &(struct json_builder){(arena), &(da)}}}
 
 #endif //SERIALIZERS_H_
