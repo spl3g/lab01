@@ -12,10 +12,6 @@ const_string cs_from_cstr(const char* cstr) {
   return cs_from_parts(cstr, strlen(cstr));
 }
 
-int cs_to_cstr(char* buf, const_string str) {
-    return snprintf(buf, str.len+1, "%.*s", str.len, str.data);
-}
-
 const_string cs_slice(const_string src, int from, int to) {
   if (from > src.len) {
 	return src;

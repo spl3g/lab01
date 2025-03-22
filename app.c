@@ -1,131 +1,164 @@
+#include <stdlib.h>
+
 #include "lib/const_strings.h"
 #include "lib/http.h"
 #include "lib/json/frozen.h"
 #include "internal/types.h"
 #include "internal/serializers.h"
 
-void contacts_get(context *ctx, struct request req, struct response *resp) {
-  http_log(HTTP_INFO, "GET contacts\n");
-  arena *arena = get_context_value(ctx, CS("arena"));
+void contacts_get(http_request req) {
+  arena *arena = req.arena;
 
   string_builder output = {0};
-  struct json_out out = JSON_OUT_BUILDER(output);
+  struct json_out out = JSON_OUT_BUILDER(arena, output);
   
-  contact *contact = get_context_value(ctx, CS("contact"));
+  contact *contact = get_context_value(req.ctx, "contact");
   json_printf(&out, "%M", contact_to_json, *contact);
 
-  resp_set_code(resp, OK);
-  resp_set_json(arena, resp, arena_sb_to_cs(output));
+  req.resp->code = OK;
+  http_send_json(req, arena_sb_to_cs(output));
 }
 
-void contact_get(context *ctx, struct request req, struct response *resp) {
-  const_string *id = get_context_value(ctx, CS("id"));
-  http_log(HTTP_INFO, "GET contact id=%.*s\n", id->len, id->data);
+void contact_get(http_request req) {
+  arena *arena = req.arena;
+
+  string_builder output = {0};
+  struct json_out out = JSON_OUT_BUILDER(arena, output);
+
+  contact *contact = get_context_value(req.ctx, "contact");
+
+  const_string *id_cs = get_context_value(req.ctx, "id");
+  char id_str[id_cs->len+1];
+  long id =  strtol(id_str, NULL, 10);
+  sprintf(id_str, CS_FMT, CS_ARG(*id_cs));
   
-  arena *arena = get_context_value(ctx, CS("arena"));
-
-  string_builder output = {0};
-  struct json_out out = JSON_OUT_BUILDER(output);
-
-  contact *contact = get_context_value(ctx, CS("contact"));
+  contact->id = id;
+  
   json_printf(&out, "%M", contact_to_json, *contact);
 
-  resp_set_code(resp, OK);
-  resp_set_json(arena, resp, arena_sb_to_cs(output));
+  req.resp->code = OK;
+  http_send_json(req, arena_sb_to_cs(output));
 }
 
-void contact_post(context *ctx, struct request req, struct response *resp) {
-  http_log(HTTP_INFO, "POST contact\n");
-  arena *arena = get_context_value(ctx, CS("arena"));
+void contact_post(http_request req) {
+  arena *arena = req.arena;
 
   string_builder output = {0};
-  struct json_out out = JSON_OUT_BUILDER(output);
+  struct json_out out = JSON_OUT_BUILDER(arena, output);
 
-  contact *contact = get_context_value(ctx, CS("contact"));
+  contact *contact = get_context_value(req.ctx, "contact");
+  
   json_printf(&out, "%M", contact_to_json, *contact);
 
-  resp_set_code(resp, CREATED);
-  resp_set_json(arena, resp, arena_sb_to_cs(output));
+  req.resp->code = CREATED;
+  http_send_json(req, arena_sb_to_cs(output));
 }
 
-void contact_put(context *ctx, struct request req, struct response *resp) {
-  http_log(HTTP_INFO, "PUT contact\n");
-  arena *arena = get_context_value(ctx, CS("arena"));
+void contact_put(http_request req) {
+  arena *arena = req.arena;
 
   string_builder output = {0};
-  struct json_out out = JSON_OUT_BUILDER(output);
+  struct json_out out = JSON_OUT_BUILDER(arena, output);
 
-  contact *contact = get_context_value(ctx, CS("contact"));
+  contact *contact = get_context_value(req.ctx, "contact");
+
+  const_string *id_cs = get_context_value(req.ctx, "id");
+  char id_str[id_cs->len+1];
+  sprintf(id_str, CS_FMT, CS_ARG(*id_cs));
+  long id =  strtol(id_str, NULL, 10);
+
+  contact->id = id;
+  
   json_printf(&out, "%M", contact_to_json, *contact);
 
-  resp_set_code(resp, OK);
-  resp_set_json(arena, resp, arena_sb_to_cs(output));
+  req.resp->code = OK;
+  http_send_json(req, arena_sb_to_cs(output));
 }
 
-void contact_delete(context *ctx, struct request req, struct response *resp) {
-  http_log(HTTP_INFO, "DELETE contact\n");
-  resp->code = NO_CONTENT;
+void contact_delete(http_request req) {
+  req.resp->code = NO_CONTENT;
+  http_send(req);
 }
 
-void groups_get(context *ctx, struct request req, struct response *resp) {
-  arena *arena = get_context_value(ctx, CS("arena"));
+void groups_get(http_request req) {
+  arena *arena = req.arena;
 
   string_builder output = {0};
-  struct json_out out = JSON_OUT_BUILDER(output);
+  struct json_out out = JSON_OUT_BUILDER(arena, output);
 
-  contact *group = get_context_value(ctx, CS("group"));
+  contact *group = get_context_value(req.ctx, "group");
   json_printf(&out, "%M", group_to_json, *group);
 
-  resp_set_code(resp, OK);
-  resp_set_json(arena, resp, arena_sb_to_cs(output));
+  req.resp->code = OK;
+  http_send_json(req, arena_sb_to_cs(output));
 }
 
-void group_get(context *ctx, struct request req, struct response *resp) {
-  arena *arena = get_context_value(ctx, CS("arena"));
+void group_get(http_request req) {
+  arena *arena = req.arena;
 
   string_builder output = {0};
-  struct json_out out = JSON_OUT_BUILDER(output);
+  struct json_out out = JSON_OUT_BUILDER(arena, output);
 
-  contact *group = get_context_value(ctx, CS("group"));
+  contact *group = get_context_value(req.ctx, "group");
+  
+  const_string *id_cs = get_context_value(req.ctx, "id");
+  char id_str[id_cs->len+1];
+  sprintf(id_str, CS_FMT, CS_ARG(*id_cs));
+  long id =  strtol(id_str, NULL, 10);
+
+  group->id = id;
   json_printf(&out, "%M", group_to_json, *group);
 
-  resp_set_code(resp, OK);
-  resp_set_json(arena, resp, arena_sb_to_cs(output));
+  req.resp->code = OK;
+  http_send_json(req, arena_sb_to_cs(output));
 }
 
-void group_post(context *ctx, struct request req, struct response *resp) {
-  arena *arena = get_context_value(ctx, CS("arena"));
+void group_post(http_request req) {
+  arena *arena = req.arena;
 
   string_builder output = {0};
-  struct json_out out = JSON_OUT_BUILDER(output);
+  struct json_out out = JSON_OUT_BUILDER(arena, output);
 
-  contact *group = get_context_value(ctx, CS("group"));
+  contact *group = get_context_value(req.ctx, "group");
   json_printf(&out, "%M", group_to_json, *group);
 
-  resp_set_code(resp, CREATED);
-  resp_set_json(arena, resp, arena_sb_to_cs(output));
+  req.resp->code = CREATED;
+  http_send_json(req, arena_sb_to_cs(output));
 }
 
-void group_put(context *ctx, struct request req, struct response *resp) {
-  arena *arena = get_context_value(ctx, CS("arena"));
+void group_put(http_request req) {
+  arena *arena = req.arena;
 
   string_builder output = {0};
-  struct json_out out = JSON_OUT_BUILDER(output);
+  struct json_out out = JSON_OUT_BUILDER(arena, output);
 
-  contact *group = get_context_value(ctx, CS("group"));
+  contact *group = get_context_value(req.ctx, "group");
+
+  const_string *id_cs = get_context_value(req.ctx, "id");
+  char id_str[id_cs->len+1];
+  sprintf(id_str, CS_FMT, CS_ARG(*id_cs));
+  long id =  strtol(id_str, NULL, 10);
+
+  group->id = id;
   json_printf(&out, "%M", group_to_json, *group);
 
-  resp_set_code(resp, OK);
-  resp_set_json(arena, resp, arena_sb_to_cs(output));
+  req.resp->code = OK;
+  http_send_json(req, arena_sb_to_cs(output));
 }
 
-void group_delete(context *ctx, struct request req, struct response *resp) {
-  resp->code = NO_CONTENT;
+void group_delete(http_request req) {
+  req.resp->code = NO_CONTENT;
+  http_send(req);
+}
+
+void logging_middleware(http_middleware *self, http_request req) {
+  http_run_next(self, req);
+  http_log(HTTP_INFO, "\""CS_FMT" "CS_FMT" "CS_FMT"\""" %ld\n", CS_ARG(req.method), CS_ARG(req.path), CS_ARG(req.version), req.resp->code);
 }
 
 int main() {
   arena arena = {0};
-  struct server serv = {0};
+  http_server serv = {0};
   if (init_server(&arena, &serv, NULL, "7080") != 0) {
 	return 1;
   }
@@ -163,22 +196,24 @@ int main() {
 	.description = CS("desc"),
 	.contacts = &contact_da,
   };
-  context ctx = {0};
-  set_context_value(&arena, &ctx, (context_value){CS("contact"), &ivan});
-  set_context_value(&arena, &ctx, (context_value){CS("group"), &friends});
+  http_context ctx = {0};
+  set_context_value(&arena, &ctx, (http_context_value){CS("contact"), &ivan});
+  set_context_value(&arena, &ctx, (http_context_value){CS("group"), &friends});
   serv.global_ctx = ctx;
 
-  handle_path(&serv, CS("GET"), CS("/api/v1/contact"), contacts_get);
-  handle_path(&serv, CS("GET"), CS("/api/v1/contact/:id"), contact_get);
-  handle_path(&serv, CS("POST"), CS("/api/v1/contact"), contact_post);
-  handle_path(&serv, CS("PUT"), CS("/api/v1/contact/:id"), contact_put);
-  handle_path(&serv, CS("DELETE"), CS("/api/v1/contact/:id"), contact_delete);
+  http_register_global_middleware(&serv, logging_middleware);
 
-  handle_path(&serv, CS("GET"), CS("/api/v1/group"), groups_get);
-  handle_path(&serv, CS("GET"), CS("/api/v1/group/:id"), group_get);
-  handle_path(&serv, CS("POST"), CS("/api/v1/group"), group_post);
-  handle_path(&serv, CS("PUT"), CS("/api/v1/group/:id"), group_put);
-  handle_path(&serv, CS("DELETE"), CS("/api/v1/group/:id"), group_delete);
+  http_handle_path(&serv, CS("GET"), CS("/api/v1/contact"), contacts_get);
+  http_handle_path(&serv, CS("GET"), CS("/api/v1/contact/:id"), contact_get);
+  http_handle_path(&serv, CS("POST"), CS("/api/v1/contact"), contact_post);
+  http_handle_path(&serv, CS("PUT"), CS("/api/v1/contact/:id"), contact_put);
+  http_handle_path(&serv, CS("DELETE"), CS("/api/v1/contact/:id"), contact_delete);
+
+  http_handle_path(&serv, CS("GET"), CS("/api/v1/group"), groups_get);
+  http_handle_path(&serv, CS("GET"), CS("/api/v1/group/:id"), group_get);
+  http_handle_path(&serv, CS("POST"), CS("/api/v1/group"), group_post);
+  http_handle_path(&serv, CS("PUT"), CS("/api/v1/group/:id"), group_put);
+  http_handle_path(&serv, CS("DELETE"), CS("/api/v1/group/:id"), group_delete);
   listen_and_serve(&serv);
 
   return 0;
