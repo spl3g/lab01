@@ -2,8 +2,8 @@
 #define TYPES_H_
 
 #include <stddef.h>
-#include "../lib/const_strings.h"
-#include "../lib/arena_strings.h"
+#include <chttp/const_strings.h>
+#include <chttp/arena_strings.h>
 
 typedef struct {
   size_t type_id;

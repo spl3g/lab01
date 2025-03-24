@@ -1,9 +1,9 @@
 #ifndef SERIALIZERS_H_
 #define SERIALIZERS_H_
 
-#include "../lib/arena.h"
-#include "../lib/arena_strings.h"
-#include "../lib/json/frozen.h"
+#include <chttp/arena.h>
+#include <chttp/arena_strings.h>
+#include <frozen/frozen.h>
 #include "types.h"
 
 struct json_builder {

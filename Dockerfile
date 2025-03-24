@@ -1,11 +1,11 @@
 FROM alpine:3.21 AS builder
-RUN apk add --no-cache gcc musl-dev make
+RUN apk add --no-cache build-base
 
 WORKDIR /cbuild
 
-COPY ./lib ./lib
-COPY ./internal ./internal
-COPY ./app.c ./
+COPY ./include ./include
+COPY ./src ./src
+COPY ./third_party ./third_party
 COPY ./Makefile ./
 
 RUN make

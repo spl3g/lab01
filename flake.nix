@@ -28,7 +28,7 @@
           packages = with pkgs; [
             gcc
             glibc
-            glibc.static
+            jansson
 			      man-pages
             gdb
           ];

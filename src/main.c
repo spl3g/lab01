@@ -1,10 +1,10 @@
 #include <stdlib.h>
 
-#include "lib/const_strings.h"
-#include "lib/http.h"
-#include "lib/json/frozen.h"
-#include "internal/types.h"
-#include "internal/serializers.h"
+#include <chttp/const_strings.h>
+#include <chttp/http.h>
+#include <frozen/frozen.h>
+#include "types.h"
+#include "serializers.h"
 
 void contacts_get(http_request req) {
   arena *arena = req.arena;
@@ -203,17 +203,17 @@ int main() {
 
   http_register_global_middleware(&serv, logging_middleware);
 
-  http_handle_path(&serv, CS("GET"), CS("/api/v1/contact"), contacts_get);
-  http_handle_path(&serv, CS("GET"), CS("/api/v1/contact/:id"), contact_get);
-  http_handle_path(&serv, CS("POST"), CS("/api/v1/contact"), contact_post);
-  http_handle_path(&serv, CS("PUT"), CS("/api/v1/contact/:id"), contact_put);
-  http_handle_path(&serv, CS("DELETE"), CS("/api/v1/contact/:id"), contact_delete);
+  http_handle_path(&serv, "GET", "/api/v1/contact", contacts_get);
+  http_handle_path(&serv, "GET", "/api/v1/contact/:id", contact_get);
+  http_handle_path(&serv, "POST", "/api/v1/contact", contact_post);
+  http_handle_path(&serv, "PUT", "/api/v1/contact/:id", contact_put);
+  http_handle_path(&serv, "DELETE", "/api/v1/contact/:id", contact_delete);
 
-  http_handle_path(&serv, CS("GET"), CS("/api/v1/group"), groups_get);
-  http_handle_path(&serv, CS("GET"), CS("/api/v1/group/:id"), group_get);
-  http_handle_path(&serv, CS("POST"), CS("/api/v1/group"), group_post);
-  http_handle_path(&serv, CS("PUT"), CS("/api/v1/group/:id"), group_put);
-  http_handle_path(&serv, CS("DELETE"), CS("/api/v1/group/:id"), group_delete);
+  http_handle_path(&serv, "GET", "/api/v1/group", groups_get);
+  http_handle_path(&serv, "GET", "/api/v1/group/:id", group_get);
+  http_handle_path(&serv, "POST", "/api/v1/group", group_post);
+  http_handle_path(&serv, "PUT", "/api/v1/group/:id", group_put);
+  http_handle_path(&serv, "DELETE", "/api/v1/group/:id", group_delete);
   listen_and_serve(&serv);
 
   return 0;
